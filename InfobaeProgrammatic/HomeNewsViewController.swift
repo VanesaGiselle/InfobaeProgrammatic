@@ -28,10 +28,10 @@ class HomeNewsViewController: UIViewController {
             switch result {
             case .success(let newsFeed):
                 for article in newsFeed.articles {
-                    let infoNews = InfoNew(imageName: article.urlToImage, titleText: article.title, descriptionText: article.description)
+                    let infoNews = InfoNew(imageName: "", titleText: article.title, descriptionText: article.description)
                     self?.infoNewTableViewCellArray.append(infoNews)
-                    self?.homeNewTableView.reloadData()
                 }
+                self?.homeNewTableView.reloadData()
             case .failure(let error):
                 print("Fallo")
             }
