@@ -1,44 +1,46 @@
 //
-//  DescriptionNewTableViewCell.swift
+//  NewTableViewCell.swift
 //  InfobaeProgrammatic
 //
-//  Created by Vanesa Korbenfeld on 25/01/2022.
+//  Created by Vanesa Korbenfeld on 22/02/2022.
 //
 
 import UIKit
 
-class DescriptionNewTableViewCell: UITableViewCell {
-    var imageName: String?
-
-    lazy var titleNew = createTitleNew()
-    lazy var descriptionNew = createDescriptionNew()
-    lazy var imageNew = createImageNew()
+class NewTableViewCell: UITableViewCell {
+    static let reuseIdentifier = "NewTableViewCell"
+    private var viewModel: ViewModel?
     
-    func createTitleNew() -> UILabel {
+    struct ViewModel {
+        let titleText: String?
+        let descriptionText: String?
+        let imageUrl: URL
+    }
+    
+    lazy var titleNew: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 30, weight: .heavy)
         label.textColor = .black
         label.numberOfLines = 0
         return label
-    }
+    }()
     
-    func createDescriptionNew() -> UILabel {
+    lazy var descriptionNew: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 20)
         label.textColor = .black
         label.numberOfLines = 0
         return label
-    }
+    }()
     
-    func createImageNew() -> UIImageView {
+    lazy var imageNew: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: imageName ?? "new")
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
-    }
+    }()
     
     required override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -61,7 +63,7 @@ class DescriptionNewTableViewCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             
-            titleNew.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 20),
+            titleNew.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 30),
             titleNew.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
             titleNew.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
             
@@ -74,19 +76,27 @@ class DescriptionNewTableViewCell: UITableViewCell {
             imageNew.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
             imageNew.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
             imageNew.heightAnchor.constraint(equalToConstant: 200),
-            imageNew.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -20)
+            imageNew.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -30)
         ])
     }
-}
-
-class InfoNew {
-    var titleText: String
-    var descriptionText: String
-    var imageName: String
     
-    init(imageName: String, titleText: String, descriptionText: String) {
-        self.imageName = imageName
-        self.titleText = titleText
-        self.descriptionText = descriptionText
+    func render(viewModel: ViewModel) {
+        titleNew.text = viewModel.titleText
+        descriptionNew.text = viewModel.descriptionText
+        loadNewImage(url: viewModel.imageUrl)
+        self.viewModel = viewModel
+    }
+    
+    func loadNewImage(url: URL) {
+        imageNew.image = nil
+        DispatchQueue.global().async { [weak self] in
+            if let data = try? Data(contentsOf: url) {
+                if let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self?.imageNew.image = image
+                    }
+                }
+            }
+        }
     }
 }
